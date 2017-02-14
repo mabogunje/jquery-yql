@@ -1,0 +1,53 @@
+<html>
+    <!-- Just a test file for now -->
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac.min.js"></script>
+        <script src="oauth-1.0a.js"></script>
+        <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var url = 'https://www.goodreads.com/review/list/64620959.xml?key=M15FipoFYVCIwLylLqznPw&shelf=to-read&sort=title&v=2';
+            var yql = 'https://query.yahooapis.com/v1/public/yql?q=';
+            var params = {
+                url: 'https://www.goodreads.com/review/list/',
+                list: '64620959',
+                key: 'M15FipoFYVCIwLylLqznPw',
+                id: '64620959',
+                shelf: 'to-read',
+                sort: 'title',
+                v: '2',
+                select: ['reviews.review.book.title', 'reviews.review.book.link', 'reviews.review.book.authors.author.name'],
+            };
+
+            var query = encodeURIComponent('select ' + params.select.join(', ') + ' from xml where url="' + url + '"') + '&format=xml&callback=yqlCallback';
+            var oauth = OAuth({
+                consumer: {
+                    key: 'dj0yJmk9UHpKWUlUUmI4SlpNJmQ9WVdrOWMwaHNiMWN6TkcwbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hZg—',
+                    secret: 'cb60e3582ce27ed08dd77b3bdc0f3c1f27e03bbf'
+                },
+                signature_method: 'HMAC-SHA1',
+                hash_function: function(base_string, key) {
+                    return CryptoJS.HmacSHA1(base_string, key).toString(CryptoJS.enc.Base64);
+                }
+            });
+
+            var yqlCallback = function(data) {
+                $('body').text(data.results);
+            };
+
+            var request = {
+                url: yql + query,
+                method: 'GET'
+            };
+
+            $.ajax({
+                url: request.url,
+                type: request.method,
+                data: oauth.authorize(request)
+            });
+        </script>
+    </body>
+</html>
