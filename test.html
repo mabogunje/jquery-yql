@@ -9,20 +9,52 @@
     </head>
     <body>
         <script type="text/javascript">
-            var url = 'https://www.goodreads.com/review/list/64620959.xml?key=M15FipoFYVCIwLylLqznPw&shelf=to-read&sort=title&v=2';
-            var yql = 'https://query.yahooapis.com/v1/public/yql?q=';
-            var params = {
-                url: 'https://www.goodreads.com/review/list/',
-                list: '64620959',
+            String.prototype.format = String.prototype.format ||
+			function () {
+    			"use strict";
+    			var str = this.toString();
+    			if (arguments.length) {
+    			    var t = typeof arguments[0];
+    			    var key;
+    			    var args = ("string" === t || "number" === t) ?
+    			        Array.prototype.slice.call(arguments)
+    			        : arguments[0];
+
+    			    for (key in args) {
+    			        str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
+    			    }
+    			}
+
+    			return str;
+			};
+ 
+            var yql = 'https://query.yahooapis.com/v1/public/yql';
+            var datasource = 'xml';
+            var api = 'https://www.goodreads.com/review/list/';
+            var resource = '64620959.xml';
+            var yqlParams = {
+                q: 'select reviews.review.book.title, reviews.review.book.link, reviews.review.book.authors.author.name from {0} where url="{1}"',
+                format: 'xml',
+                callback: 'yqlCallback',
+            };
+
+            var apiParams = {
                 key: 'M15FipoFYVCIwLylLqznPw',
-                id: '64620959',
                 shelf: 'to-read',
                 sort: 'title',
                 v: '2',
-                select: ['reviews.review.book.title', 'reviews.review.book.link', 'reviews.review.book.authors.author.name'],
             };
 
-            var query = encodeURIComponent('select ' + params.select.join(', ') + ' from xml where url="' + url + '"') + '&format=xml&callback=yqlCallback';
+            var uri = (resource) ? api + resource : api;
+            uri = $.isEmptyObject(apiParams) ? uri : uri + '?' + $.param(apiParams);
+
+            yqlParams.q = yqlParams.q.format(datasource, uri);
+
+            var request = {
+                url: yql + '?' + $.param(yqlParams),
+                method: 'GET'
+            };
+
             var oauth = OAuth({
                 consumer: {
                     key: 'dj0yJmk9UHpKWUlUUmI4SlpNJmQ9WVdrOWMwaHNiMWN6TkcwbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hZg—',
@@ -36,11 +68,6 @@
 
             var yqlCallback = function(data) {
                 $('body').text(data.results);
-            };
-
-            var request = {
-                url: yql + query,
-                method: 'GET'
             };
 
             $.ajax({
