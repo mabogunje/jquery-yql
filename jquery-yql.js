@@ -41,12 +41,11 @@ function () {
             tables: select || '*',
             params: {},
             error: function(err) {
-                error = err || 'No Data Retrieved';
+                var error = err || 'No Data Retrieved';
                 console.log(error);
             },
             onData: function() {},
             onSuccess: function(data) {
-                console.trace();
                 console.log(JSON.stringify(data));
                 //$(target).append(data.results);
                 //console.log(JSON.stringify(data.results));
@@ -65,6 +64,18 @@ function () {
 
     YQL.INPUTS = ['html', 'xml', 'json', 'rss', 'atom'];
     YQL.OUTPUTS = ['xml', 'json'];
+    YQL.HTML_TAGS = ['doctype', 'html', 'head', 'title', 'base', 'link', 'meta', 'style', 'script', 'noscript',
+        'body', 'article', 'nav', 'aside', 'section', 'header', 'footer', 'h1-h6', 'hgroup', 'address',
+        'p', 'hr', 'pre', 'blockquote', 'ol', 'ul', 'li', 'dl', 'dt', 'dd', 'figure', 'figcaption',
+        'div', 'table', 'caption', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'col', 'colgroup',
+        'form', 'fieldset', 'legend', 'label', 'input', 'button', 'select', 'datalist', 'optgroup',
+        'option', 'textarea', 'keygen', 'output', 'progress', 'meter', 'details', 'summary', 'command',
+        'menu', 'del', 'ins', 'img', 'iframe', 'embed', 'object', 'param', 'video', 'audio', 'source',
+        'canvas', 'track', 'map', 'area', 'a', 'em', 'strong', 'i', 'b', 'u', 's', 'small', 'abbr', 'q',
+        'cite', 'dfn', 'sub', 'sup', 'time', 'code', 'kbd', 'samp', 'var', 'mark', 'bdi', 'bdo', 'ruby',
+        'rt', 'rp', 'span', 'br', 'wbr'
+    ];
+         
 
     YQL.prototype.load = function(callback) {
         var self = this;
@@ -84,9 +95,9 @@ function () {
         }
 
         self.params = {
-            q: self.query.format(self.options.tables, self.options.input, self.options.url),
+            q: self.query.format(self.options.tables, self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
-            callback: self.callback,
+            callback: callback,
             crossProduct: 'optimized',
         };
 
@@ -95,6 +106,7 @@ function () {
             method: 'GET'
         };
 
+        console.log(this.request.url);
         if(self.options.oauth) {
             self.options.oauth = $.extend({
                 consumer: { key: null, secret: null },
@@ -106,15 +118,13 @@ function () {
 
             $.ajax({
                 url: self.request.url,
-                type: self.request.method,
+                method: self.request.method,
                 data: OAuth(self.options.oauth).authorize(self.request),
-                success: callback,
             });
-        } else { 
+        } else {
             $.ajax({ 
                 url: self.request.url, 
-                type: self.request.method,
-                success: callback, 
+                method: self.request.method,
             });
         }
     };
@@ -124,20 +134,19 @@ function () {
 
         this.load(function(data) {
             try {
-                self.feed = data.results;
-                self.entries = null;
-                return self.callback.call(self, data);
+                console.log(data);
+                self.payload = data;
+                self.entries = data;
             } catch (e) {
-                self.feed = null;
+                self.payload = null;
                 self.entries = [];
-                return self.options.error.call(self);
+                return self.options.error.call(self, e.message);
             }
         });
     }
 
     $.fn.yql = function(url, select, options, callback) {
-        var test = new YQL(this, url, select, options, callback)
-        test.load('test.callback');
+        new YQL(this, url, select, options, callback).render();
         return this;
     };
 
@@ -151,9 +160,10 @@ function () {
                 key: 'M15FipoFYVCIwLylLqznPw',
                 shelf: 'to-read',
                 sort: 'title',
+                per_page: 5,
                 v: '2',
             }
-        }   
+        },
     );
 })(jQuery);
 
