@@ -1,10 +1,29 @@
 /**
  * JQuery YQL GET
  * @description: Lightweight script for performing simple YQL GET requests via JQuery, and displaying formatted results'
- * @dependson: YQL, jQuery
+ * @dependson: YQL, jQuery, CryptoJS, OAuth
  * @author: Damola Mabogunje
  * @version: 0.1
  */
+
+String.prototype.format = String.prototype.format ||
+function () {
+	"use strict";
+	var str = this.toString();
+	if (arguments.length) {
+	    var t = typeof arguments[0];
+	    var key;
+	    var args = ("string" === t || "number" === t) ?
+	        Array.prototype.slice.call(arguments)
+	        : arguments[0];
+
+	    for (key in args) {
+	        str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
+	    }
+	}
+
+	return str;
+};
 
 (function($) {
     'use strict';
