@@ -68,7 +68,7 @@
             });
 
             var yqlCallback = function(data) {
-                $('body').text(data.results);
+                $('body').append(data.results);
             };
 
             $.ajax({
