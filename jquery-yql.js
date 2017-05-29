@@ -6,9 +6,8 @@
  * @version: 0.1
  */
 
-String.prototype.format = String.prototype.format ||
-function () {
-	"use strict";
+String.prototype.format = String.prototype.format || function () {
+	'use strict';
 	var str = this.toString();
 	if (arguments.length) {
 	    var t = typeof arguments[0];
@@ -23,6 +22,13 @@ function () {
 	}
 
 	return str;
+};
+
+Object.prototype.resolve = Object.prototype.resolve || function (path, obj) {
+	'use strict';
+    return path.split('.').reduce(function(prev, curr) {
+        return prev ? prev[curr] : undefined;
+    }, obj || self);
 };
 
 (function($) {
@@ -46,9 +52,7 @@ function () {
             },
             onData: function() {},
             onSuccess: function(data) {
-                console.log(JSON.stringify(data));
-                //$(target).append(data.results);
-                //console.log(JSON.stringify(data.results));
+                console.trace();
             }
         }, options || {});
 
@@ -90,15 +94,16 @@ function () {
             self.options.output = self.options.input;
         }
         
-        if(Array.isArray(self.options.tables)) {
-            self.options.tables = self.options.tables.join(', ').trim();
+        if($.type(self.options.tables) == 'string') {
+            self.options.tables = self.options.tables.split(',');
+        } else if (!$.isArray(self.options.tables)) {
+            self.options.tables = '*';
         }
 
         self.params = {
-            q: self.query.format(self.options.tables, self.options.input, self.options.url, self.options.limit, self.options.offset),
+            q: self.query.format(self.options.tables.join(', '), self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
-            callback: callback,
-            crossProduct: 'optimized',
+            callback: callback.name,
         };
 
         self.request = {
@@ -106,7 +111,7 @@ function () {
             method: 'GET'
         };
 
-        console.log(this.request.url);
+        console.log(self.request.url);
         if(self.options.oauth) {
             self.options.oauth = $.extend({
                 consumer: { key: null, secret: null },
@@ -120,11 +125,13 @@ function () {
                 url: self.request.url,
                 method: self.request.method,
                 data: OAuth(self.options.oauth).authorize(self.request),
+                success: callback,
             });
         } else {
             $.ajax({ 
                 url: self.request.url, 
                 method: self.request.method,
+                success: callback,
             });
         }
     };
@@ -134,16 +141,36 @@ function () {
 
         this.load(function(data) {
             try {
-                console.log(data);
-                self.payload = data;
-                self.entries = data;
+                console.log(data.query.results);
+                self.payload = data.query.results
+                self.entries = data.query.results;
+
+                console.log(self.options.tables[0]);
+                
+                Object.getOwnPropertyNames(self.payload).forEach(function(val, idx, array) {
+                    console.log(Object.resolve(self.options.tables[0]), self.payload);
+                });
+
+                console.log(self.options.tables);
             } catch (e) {
                 self.payload = null;
                 self.entries = [];
                 return self.options.error.call(self, e.message);
             }
+/*
+            var html = self.generateHTMLForEntries();
+            self.target.append(html.layout);
+
+            if(html.entries.length !== 0) {
+                if($.isFunction(self.options.onData)) {
+                    self.options.onData.call(self);
+                }
+
+                var container = $(html.layout).is('entries') ? html.layout : html.entries;
+            }
+*/
         });
-    }
+    };
 
     $.fn.yql = function(url, select, options, callback) {
         new YQL(this, url, select, options, callback).render();
@@ -152,10 +179,14 @@ function () {
 
     $('body').yql(
         'https://www.goodreads.com/review/list/',
-        ['reviews.review.book.title', 'reviews.review.book.link', 'reviews.review.book.authors.author.name'],
+        'reviews.review.book.title, reviews.review.book.link, reviews.review.book.authors.author.name',
         {
             resource: '64620959.xml',
             input: 'xml',
+            oauth: {
+                key: 'dj0yJmk9UHpKWUlUUmI4SlpNJmQ9WVdrOWMwaHNiMWN6TkcwbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hZg—',
+                secret: 'cb60e3582ce27ed08dd77b3bdc0f3c1f27e03bbf',
+            },
             params: {
                 key: 'M15FipoFYVCIwLylLqznPw',
                 shelf: 'to-read',
