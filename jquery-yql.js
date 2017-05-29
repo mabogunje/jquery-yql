@@ -24,8 +24,9 @@ String.prototype.format = String.prototype.format || function () {
 	return str;
 };
 
-Object.prototype.resolve = Object.prototype.resolve || function (path, obj) {
+Object.resolve = function (path, obj) {
 	'use strict';
+    console.log(obj);
     return path.split('.').reduce(function(prev, curr) {
         return prev ? prev[curr] : undefined;
     }, obj || self);
@@ -141,17 +142,13 @@ Object.prototype.resolve = Object.prototype.resolve || function (path, obj) {
 
         this.load(function(data) {
             try {
-                console.log(data.query.results);
                 self.payload = data.query.results
                 self.entries = data.query.results;
 
-                console.log(self.options.tables[0]);
-                
                 Object.getOwnPropertyNames(self.payload).forEach(function(val, idx, array) {
-                    console.log(Object.resolve(self.options.tables[0]), self.payload);
+                    console.log(Object.resolve(self.options.tables[0], self.payload));
                 });
 
-                console.log(self.options.tables);
             } catch (e) {
                 self.payload = null;
                 self.entries = [];
