@@ -26,10 +26,41 @@ String.prototype.format = String.prototype.format || function () {
 
 Object.resolve = function (path, obj) {
 	'use strict';
-    console.log(obj);
     return path.split('.').reduce(function(prev, curr) {
         return prev ? prev[curr] : undefined;
     }, obj || self);
+};
+
+function flattenObject(o) {
+    return Object.keys(o).reduce(function(obj, prop) {
+        switch (Object.prototype.toString.call(o[prop])) {
+            case '[object Date]':
+                obj[prop] = o[prop].toString();
+                break;
+            case '[object Object]':
+                if(o[prop]) {
+                    var flatObj = flattenObject(o[prop]);
+                    
+                    Object.keys(flatObj).forEach(function(key) {
+                        obj[prop + '.' + key] = flatObj[key];
+                    });
+                }
+                break;
+            default:
+                obj[prop] = o[prop];
+                break;
+        }
+
+        return obj;
+    }, {});
+};
+
+function flattenArray(arr, val) {
+    if(Array.isArray(val)) {
+        return arr.concat(flattenArray(val));
+    } else {
+        return arr.concat([flattenObject(val)]);
+    }
 };
 
 (function($) {
@@ -47,6 +78,10 @@ Object.resolve = function (path, obj) {
             resource: '',
             tables: select || '*',
             params: {},
+            layoutTemplate: '<ul>{entries}</ul>',
+            entryTemplate: '<li>{entry}</li>',
+            effect: 'show',
+            tokens: {},
             error: function(err) {
                 var error = err || 'No Data Retrieved';
                 console.log(error);
@@ -102,7 +137,7 @@ Object.resolve = function (path, obj) {
         }
 
         self.params = {
-            q: self.query.format(self.options.tables.join(', '), self.options.input, self.options.url, self.options.limit, self.options.offset),
+            q: self.query.format(self.options.tables.join(','), self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
             callback: callback.name,
         };
@@ -112,7 +147,6 @@ Object.resolve = function (path, obj) {
             method: 'GET'
         };
 
-        console.log(self.request.url);
         if(self.options.oauth) {
             self.options.oauth = $.extend({
                 consumer: { key: null, secret: null },
@@ -142,19 +176,18 @@ Object.resolve = function (path, obj) {
 
         this.load(function(data) {
             try {
-                self.payload = data.query.results
-                self.entries = data.query.results;
+                self.feed = data.query.results
+                self.entries = [];
 
-                Object.getOwnPropertyNames(self.payload).forEach(function(val, idx, array) {
-                    console.log(Object.resolve(self.options.tables[0], self.payload));
-                });
-
+                for(var item in self.feed) {
+                    self.entries = self.entries.concat(self.feed[item].reduce(flattenArray, []));
+                }
             } catch (e) {
                 self.payload = null;
                 self.entries = [];
                 return self.options.error.call(self, e.message);
             }
-/*
+
             var html = self.generateHTMLForEntries();
             self.target.append(html.layout);
 
@@ -163,35 +196,135 @@ Object.resolve = function (path, obj) {
                     self.options.onData.call(self);
                 }
 
-                var container = $(html.layout).is('entries') ? html.layout : html.entries;
+                var container = $(html.layout).is('entries') ? html.layout : $('entries', html.layout);
+                self.appendEntriesAndApplyEffects(container, html.entries);
             }
-*/
         });
+    };
+
+    YQL.prototype.appendEntriesAndApplyEffects = function(target, entries) {
+        var self = this;
+
+        $.each(entries, function(idx, entry) {
+            var $html = self.wrapContent(entry);
+
+            if(self.options.effect === 'show') {
+                target.before($html);
+            } else {
+                $html.css({display: 'none'});
+                target.before($html);
+                self.applyEffect($html, self.options.effect);
+            }
+        });
+
+        target.remove();
+    }
+
+    YQL.prototype.generateHTMLForEntries = function() {
+        var self = this;
+        var result = {entries: [], layout: null};
+
+        $(this.entries).each(function() {
+            var entry = this;
+            var evaluatedString = self.evaluateStringForEntry(self.options.entryTemplate, entry);
+
+            result.entries.push(evaluatedString);
+        });
+
+        if(!!this.options.entryTemplate) {
+            result.layout = this.wrapContent(
+                this.options.layoutTemplate.replace('{entries}', '<entries></entries>')
+            );
+        } else {
+            result.layout = this.wrapContent('<div><entries></entries></div>');
+        }
+
+        return result;
+    };
+
+    YQL.prototype.applyEffect = function($element, effect, callback) {
+        var self = this;
+
+        switch(effect) {
+            case 'slide':
+                $element.slideDown('slow', callback);
+                break;
+            case 'slideFast':
+                $element.slideDown(callback);
+                break;
+            case 'slideSynced':
+                self.effectQueue.push({element: $element, effect: 'slide'});
+                break;
+            case 'slideFastSynced':
+                self.effectQueue.push({element: $element, effect: 'slideFast'});
+                break;
+        }
+    };
+
+    YQL.prototype.executeEffectQueue = function(callback) {
+        var self = this;
+
+        var executeEffectQueueItem = function() {
+            var item = self.effectQueue.pop();
+
+            if(item) {
+                self.applyEffect(item.element, item.effect, executeEffectQueueItem);
+            } else if(callback) {
+                callback();
+            }
+        };
+
+        executeEffectQueueItem();
+    };
+
+    YQL.prototype.wrapContent = function(content) {
+        if(($.trim(content).indexOf('<') !== 0)) {
+            // this content has no markup, create a surrounding div
+            return $('<div>' + content + '</div>');
+        } else {
+            return $(content);
+        }
+    };
+
+    YQL.prototype.evaluateStringForEntry = function(string, entry) {
+        var self = this;
+        var result = string;
+
+        $(string.match(/(\{.*?})/g)).each(function() {
+            var token = this.toString();
+            result = result.replace(token, self.getValueForToken(token, entry));
+        });
+
+        return result;
+    };
+
+    YQL.prototype.getTokenMap = function(entry) {
+        if (!this.feedTokens) {
+            this.feedTokens = this.entries.map(flattenObject);
+        }
+
+        return $.extend({
+            feed: this.feedTokens,
+            index: $.inArray(entry, this.entries),
+            totalEntries: this.entries.length,
+        }, this.options.tokens);
+    };
+
+    YQL.prototype.getValueForToken = function(_token, entry) {
+        var tokenMap = this.getTokenMap(entry);
+        var token = _token.replace(/[\{\}]/g, '');
+        var result = (tokenMap.feed[tokenMap.index][token]) ? tokenMap.feed[tokenMap.index][token] : tokenMap[token]; 
+
+        if(typeof result !== 'undefined') {
+            return ((typeof result === 'function') ? result(entry, tokenMap) : result);
+        } else {
+            throw new Error('Unknown token: ' + _token + ', url:' + this.url);
+        }
     };
 
     $.fn.yql = function(url, select, options, callback) {
         new YQL(this, url, select, options, callback).render();
         return this;
     };
-
-    $('body').yql(
-        'https://www.goodreads.com/review/list/',
-        'reviews.review.book.title, reviews.review.book.link, reviews.review.book.authors.author.name',
-        {
-            resource: '64620959.xml',
-            input: 'xml',
-            oauth: {
-                key: 'dj0yJmk9UHpKWUlUUmI4SlpNJmQ9WVdrOWMwaHNiMWN6TkcwbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hZg—',
-                secret: 'cb60e3582ce27ed08dd77b3bdc0f3c1f27e03bbf',
-            },
-            params: {
-                key: 'M15FipoFYVCIwLylLqznPw',
-                shelf: 'to-read',
-                sort: 'title',
-                per_page: 5,
-                v: '2',
-            }
-        },
-    );
 })(jQuery);
 

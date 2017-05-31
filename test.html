@@ -10,72 +10,38 @@
     </head>
     <body>
         <script type="text/javascript">
-            String.prototype.format = String.prototype.format ||
-			function () {
-    			"use strict";
-    			var str = this.toString();
-    			if (arguments.length) {
-    			    var t = typeof arguments[0];
-    			    var key;
-    			    var args = ("string" === t || "number" === t) ?
-    			        Array.prototype.slice.call(arguments)
-    			        : arguments[0];
-
-    			    for (key in args) {
-    			        str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
-    			    }
-    			}
-
-    			return str;
-			};
- 
-            var yql = 'https://query.yahooapis.com/v1/public/yql';
-            var datasource = 'xml';
-            var api = 'https://www.goodreads.com/review/list/';
-            var resource = '64620959.xml';
-            var yqlParams = {
-                q: 'select reviews.review.book.title, reviews.review.book.link, reviews.review.book.authors.author.name from {0} where url="{1}"',
-                format: 'xml',
-                callback: 'yqlCallback',
-            };
-
-            var apiParams = {
-                key: 'M15FipoFYVCIwLylLqznPw',
-                shelf: 'to-read',
-                sort: 'title',
-                v: '2',
-            };
-
-            var uri = (resource) ? api + resource : api;
-            uri = $.isEmptyObject(apiParams) ? uri : uri + '?' + $.param(apiParams);
-
-            yqlParams.q = yqlParams.q.format(datasource, uri);
-
-            var request = {
-                url: yql + '?' + $.param(yqlParams),
-                method: 'GET'
-            };
-
-            var oauth = OAuth({
-                consumer: {
-                    key: 'dj0yJmk9UHpKWUlUUmI4SlpNJmQ9WVdrOWMwaHNiMWN6TkcwbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hZg—',
-                    secret: 'cb60e3582ce27ed08dd77b3bdc0f3c1f27e03bbf'
+            $('body').yql(
+                'https://www.goodreads.com/review/list/',
+                'reviews.review.book.title,reviews.review.book.link,reviews.review.book.authors.author.name',
+                {
+                    resource: '64620959.xml',
+                    input: 'xml',
+                    oauth: {
+                        key: 'dj0yJmk9UHpKWUlUUmI4SlpNJmQ9WVdrOWMwaHNiMWN6TkcwbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1hZg—',
+                        secret: 'cb60e3582ce27ed08dd77b3bdc0f3c1f27e03bbf',
+                    },
+                    params: {
+                        key: 'M15FipoFYVCIwLylLqznPw',
+                        shelf: 'to-read',
+                        sort: 'title',
+                        per_page: 5,
+                        v: '2',
+                    },
+                    layoutTemplate: "<ul class='list-unstyled'>{entries}</ul>",
+                    entryTemplate: [
+                        "<li class='item'>",
+                        "<i class='fa fa-bookmark text-primary'></i>",
+                        "<a href='{book.link}' target='blank'>{book.title}</a><br />",
+                        "<small>{book.author}</small>",
+                        "</li>",
+                    ].join(''),
+                    tokens: {
+                        'book.title': function(entry, tokens) { return entry['reviews.review.book.title']; },
+                        'book.link' : function(entry, tokens) { return entry['reviews.review.book.link']; },
+                        'book.author': function(entry, tokens) { return entry['reviews.review.book.authors.author.name']; },
+                    },
                 },
-                signature_method: 'HMAC-SHA1',
-                hash_function: function(base_string, key) {
-                    return CryptoJS.HmacSHA1(base_string, key).toString(CryptoJS.enc.Base64);
-                }
-            });
-
-            var yqlCallback = function(data) {
-                $('body').append(data.results);
-            };
-
-            $.ajax({
-                url: request.url,
-                type: request.method,
-                data: oauth.authorize(request)
-            });
+            );
         </script>
     </body>
 </html>
