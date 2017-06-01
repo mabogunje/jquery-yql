@@ -22,7 +22,6 @@
             resource: '',
             tables: select || '*',
             params: {},
-            sort: null,
             layoutTemplate: '<ul>{entries}</ul>',
             entryTemplate: '<li>{entry}</li>',
             effect: 'show',
@@ -77,11 +76,6 @@
             self.options.tables = self.options.tables.split(',');
         } else if (!$.isArray(self.options.tables)) {
             self.options.tables = '*';
-        }
-
-        if(self.options.sort) {
-            self.query += '|sort(field="{0}")'.format(self.options.sort);
-            console.log(self.query);
         }
 
         self.params = {
