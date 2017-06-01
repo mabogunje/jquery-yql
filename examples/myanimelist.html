@@ -1,0 +1,43 @@
+<html>
+    <!-- Just a test file for now -->
+    <head>
+        <script src="../libs/crypto-js/core.min.js"></script>
+        <script src="../libs/crypto-js/sha1.min.js"></script>
+        <script src="../libs/crypto-js/hmac.min.js"></script>
+        <script src="../libs/oauth-1.0a.js"></script>
+        <script src="../libs/jquery-3.2.1.js"></script>
+        <script src="../src/jquery-yql.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            $('body').yql(
+                'https://myanimelist.net/malappinfo.php',
+                'anime',
+                {
+                    resource: '64620959.xml',
+                    input: 'xml',
+                    params: {
+                        u: 'd4mola',
+                        status: 'all',
+                        type: 'anime',
+                    },
+                    layoutTemplate: "<ul class='list-unstyled'>{entries}</ul>",
+                    entryTemplate: [
+                        "<li class='item'>",
+                        "<i class='fa fa-tv'></i>",
+                        "<a href='{anime.link}' target='blank'>{anime.title}</a><br />",
+                        "<span class='badge text-info'>{anime.episode}</span>",
+                        "</li>",
+                    ].join(''),
+                    tokens: {
+                        'anime.title': function(entry, tokens) { return entry['anime.series_title']; },
+                        'anime.link' : function(entry, tokens) { 
+                            return 'http://myanimelist.net/anime/{0}/{1}'.format(entry['anime.series_animedb_id'], entry['anime.series_title']); },
+                        'anime.episode': function(entry, tokens) { return entry['anime.my_watched_episodes']; },
+                    },
+                    effect: 'slideFast',
+                },
+            );
+        </script>
+    </body>
+</html>

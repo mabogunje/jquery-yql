@@ -1,12 +1,12 @@
 <html>
     <!-- Just a test file for now -->
     <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha1.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac.min.js"></script>
-        <script src="oauth-1.0a.js"></script>
-        <script src="https://code.jquery.com/jquery-latest.min.js"></script>
-        <script src="jquery-yql.js"></script>
+        <script src="../libs/crypto-js/core.min.js"></script>
+        <script src="../libs/crypto-js/sha1.min.js"></script>
+        <script src="../libs/crypto-js/hmac.min.js"></script>
+        <script src="../libs/oauth-1.0a.js"></script>
+        <script src="../libs/jquery-3.2.1.js"></script>
+        <script src="../dist/jquery-yql.min.js"></script>
     </head>
     <body>
         <script type="text/javascript">
@@ -40,6 +40,7 @@
                         'book.link' : function(entry, tokens) { return entry['reviews.review.book.link']; },
                         'book.author': function(entry, tokens) { return entry['reviews.review.book.authors.author.name']; },
                     },
+                    effect: 'slideFast',
                 },
             );
         </script>

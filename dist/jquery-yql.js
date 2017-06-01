@@ -1,67 +1,11 @@
 /**
  * JQuery YQL
- * @description: Lightweight script for performing simple YQL GET requests via JQuery, and displaying formatted results'
+ * @description: An easy-to-use yql plugin for jquery with templating (based on jquery-rss by @sdepold)
  * @dependson: YQL, jQuery, CryptoJS, OAuth
  * @author: Damola Mabogunje
  * @version: 0.1
  */
 
-String.prototype.format = String.prototype.format || function () {
-	'use strict';
-	var str = this.toString();
-	if (arguments.length) {
-	    var t = typeof arguments[0];
-	    var key;
-	    var args = ("string" === t || "number" === t) ?
-	        Array.prototype.slice.call(arguments)
-	        : arguments[0];
-
-	    for (key in args) {
-	        str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
-	    }
-	}
-
-	return str;
-};
-
-Object.resolve = function (path, obj) {
-	'use strict';
-    return path.split('.').reduce(function(prev, curr) {
-        return prev ? prev[curr] : undefined;
-    }, obj || self);
-};
-
-function flattenObject(o) {
-    return Object.keys(o).reduce(function(obj, prop) {
-        switch (Object.prototype.toString.call(o[prop])) {
-            case '[object Date]':
-                obj[prop] = o[prop].toString();
-                break;
-            case '[object Object]':
-                if(o[prop]) {
-                    var flatObj = flattenObject(o[prop]);
-                    
-                    Object.keys(flatObj).forEach(function(key) {
-                        obj[prop + '.' + key] = flatObj[key];
-                    });
-                }
-                break;
-            default:
-                obj[prop] = o[prop];
-                break;
-        }
-
-        return obj;
-    }, {});
-};
-
-function flattenArray(arr, val) {
-    if(Array.isArray(val)) {
-        return arr.concat(flattenArray(val));
-    } else {
-        return arr.concat([flattenObject(val)]);
-    }
-};
 
 (function($) {
     'use strict';
@@ -328,3 +272,64 @@ function flattenArray(arr, val) {
     };
 })(jQuery);
 
+
+/* HELPER METHODS */
+
+String.prototype.format = String.prototype.format || function () {
+	'use strict';
+	var str = this.toString();
+	if (arguments.length) {
+	    var t = typeof arguments[0];
+	    var key;
+	    var args = ("string" === t || "number" === t) ?
+	        Array.prototype.slice.call(arguments)
+	        : arguments[0];
+
+	    for (key in args) {
+	        str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
+	    }
+	}
+
+	return str;
+};
+
+Object.resolve = function (path, obj) {
+	'use strict';
+    return path.split('.').reduce(function(prev, curr) {
+        return prev ? prev[curr] : undefined;
+    }, obj || self);
+};
+
+function flattenObject(o) {
+    return Object.keys(o).reduce(function(obj, prop) {
+        switch (Object.prototype.toString.call(o[prop])) {
+            case '[object Date]':
+                obj[prop] = o[prop].toString();
+                break;
+            case '[object Object]':
+                if(o[prop]) {
+                    var flatObj = flattenObject(o[prop]);
+                    
+                    Object.keys(flatObj).forEach(function(key) {
+                        obj[prop + '.' + key] = flatObj[key];
+                    });
+                }
+                break;
+            default:
+                obj[prop] = o[prop];
+                break;
+        }
+
+        return obj;
+    }, {});
+};
+
+function flattenArray(arr, val) {
+    if(Array.isArray(val)) {
+        return arr.concat(flattenArray(val));
+    } else {
+        return arr.concat([flattenObject(val)]);
+    }
+};
+
+/* ----- */
