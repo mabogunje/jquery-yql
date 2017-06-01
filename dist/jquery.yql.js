@@ -22,6 +22,7 @@
             resource: '',
             tables: select || '*',
             params: {},
+            sort: null,
             layoutTemplate: '<ul>{entries}</ul>',
             entryTemplate: '<li>{entry}</li>',
             effect: 'show',
@@ -76,6 +77,13 @@
             self.options.tables = self.options.tables.split(',');
         } else if (!$.isArray(self.options.tables)) {
             self.options.tables = '*';
+        }
+
+        if(this.options.sort) {
+            if(typeof this.options.sort === 'string') {
+                var sortStr = '|sort("{0}")'.format(this.options.sort);
+                self.query += sortStr;
+            }
         }
 
         self.params = {
