@@ -79,6 +79,13 @@
             self.options.tables = '*';
         }
 
+        if(this.options.sort) {
+            if(typeof this.options.sort === 'string') {
+                var sortStr = '|sort("{0}")'.format(this.options.sort);
+                self.query += sortStr;
+            }
+        }
+
         self.params = {
             q: self.query.format(self.options.tables.join(','), self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
