@@ -79,11 +79,6 @@
             self.options.tables = '*';
         }
 
-        if(self.options.sort) {
-            self.query += '|sort(field="{0}")'.format(self.options.sort);
-            console.log(self.query);
-        }
-
         self.params = {
             q: self.query.format(self.options.tables.join(','), self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
