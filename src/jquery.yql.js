@@ -111,6 +111,7 @@
                 success: callback,
             });
         }
+
     };
 
     YQL.prototype.render = function() {
@@ -124,8 +125,6 @@
                 for(var item in self.feed) {
                     self.entries = self.entries.concat(self.feed[item].reduce(flattenArray, []));
                 }
-
-                console.log(self.entries);
             } catch (e) {
                 self.payload = null;
                 self.entries = [];
