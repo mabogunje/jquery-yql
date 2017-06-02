@@ -23,6 +23,8 @@
             tables: select || '*',
             params: {},
             sort: null,
+            offset: 0,
+            limit: 10,
             layoutTemplate: '<ul>{entries}</ul>',
             entryTemplate: '<li>{entry}</li>',
             effect: 'show',
@@ -63,7 +65,7 @@
     YQL.prototype.load = function(callback) {
         var self = this;
         self.api = self.options.host;
-        self.query = 'select {0} from {1} where url="{2}"';
+        self.query = 'select {0} from {1} where url="{2}" limit {3} offset {4}';
 
         if(!$.inArray(self.options.input, self.INPUTS)) {
             self.options.input = 'xml';
