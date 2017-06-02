@@ -1,0 +1,29 @@
+<html>
+    <!-- Just a test file for now -->
+    <head>
+        <script src="../libs/crypto-js/core.min.js"></script>
+        <script src="../libs/crypto-js/sha1.min.js"></script>
+        <script src="../libs/crypto-js/hmac.min.js"></script>
+        <script src="../libs/oauth-1.0a.js"></script>
+        <script src="../libs/jquery-3.2.1.js"></script>
+        <script src="../src/jquery.yql.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            $('body').yql(
+                'http://theredstringblog.com/feed/',
+                ['title', 'link', 'description'],
+                {
+                    input: 'rss',
+                    limit: 5,
+                    entryTemplate: [
+                        '<li>',
+                        '<h1><a href="{link}">{title}</a></h1>',
+                        '<p>{description}</p>',
+                        '</li>',
+                    ].join('')
+                },
+            );
+        </script>
+    </body>
+</html>

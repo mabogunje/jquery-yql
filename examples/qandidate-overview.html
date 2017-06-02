@@ -1,0 +1,37 @@
+<html>
+    <!-- Just a test file for now -->
+    <head>
+        <script src="../libs/crypto-js/core.min.js"></script>
+        <script src="../libs/crypto-js/sha1.min.js"></script>
+        <script src="../libs/crypto-js/hmac.min.js"></script>
+        <script src="../libs/oauth-1.0a.js"></script>
+        <script src="../libs/jquery-3.2.1.js"></script>
+        <script src="../src/jquery.yql.js"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    </head>
+    <body>
+        <script type="text/javascript">
+            $('body').yql(
+                'https://globotechbv.has-jobs.com/externalIntegration/v2/',
+                ['job.title','job.text', 'job.url','job.company', 'job.location', 'job.business_sector', 'job.job_category'],
+                {
+                    resource:'jobs.xml',
+                    input: 'xml',
+                    params: { lang: 'en' },
+                    layoutTemplate: '<ul class="list-unstyled">{entries}</ul>',
+                    entryTemplate: [
+                        '<li><div class="well" style="background-color: honeydew;">',
+                        '<h1><a href="{job.url}">{job.title}</a> <small class="text-success">{job.company.name}</small></h1>',
+                        '<span class="label label-primary">{job.business_sector.content}</span> &nbsp;',
+                        '<span class="label label-danger">{job.job_category.content}</span> &nbsp;',
+                        '<span class="label label-info">{job.location.city}, {job.location.country}</span>',
+                        '<br/><br/><br/>',
+                        '<a class="btn btn-lg btn-success" href="{job.url}">Apply</a>',
+                        '</div></li>',
+                    ].join('')
+                },
+            );
+        </script>
+    </body>
+</html>
