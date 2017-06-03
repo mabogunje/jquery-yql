@@ -14,20 +14,22 @@
         <script type="text/javascript">
             $('body').yql(
                 'https://globotechbv.has-jobs.com/externalIntegration/v2/',
-                ['job.title','job.text', 'job.url','job.company', 'job.location', 'job.business_sector', 'job.job_category'],
+                ['job.title','job.text', 'job.url','job.company', 'job.location', 'job.contract', 'job.business_sector', 'job.job_category'],
                 {
                     resource:'jobs.xml',
                     input: 'xml',
                     params: { lang: 'en' },
                     layoutTemplate: '<ul class="list-unstyled">{entries}</ul>',
                     entryTemplate: [
-                        '<li><div class="well" style="background-color: honeydew;">',
-                        '<h1><a href="{job.url}">{job.title}</a> <small class="text-success">{job.company.name}</small></h1>',
+                        '<li><div class="well">',
+                        '<h1><a href="{job.url}">{job.title}</a> <small>{job.company.name}</small></h1>',
                         '<span class="label label-primary">{job.business_sector.content}</span> &nbsp;',
                         '<span class="label label-danger">{job.job_category.content}</span> &nbsp;',
-                        '<span class="label label-info">{job.location.city}, {job.location.country}</span>',
+                        '<span class="label label-info">{job.contract.content}</span> &nbsp;',
+                        '<span class="label label-default">{job.location.city}, {job.location.country}</span> &nbsp;',
                         '<br/><br/><br/>',
-                        '<a class="btn btn-lg btn-success" href="{job.url}">Apply</a>',
+                        '<a class="btn btn-primary" href="#">Find Out More</a>&nbsp;&nbsp;',
+                        '<a class="btn btn-success" href="{job.url}">Apply</a>',
                         '</div></li>',
                     ].join('')
                 },
