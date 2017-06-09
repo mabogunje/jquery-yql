@@ -1,0 +1,35 @@
+{
+  "author": "Damola Mabogunje <damola@mabogunje.net> (http://mabogunje.net)",
+  "name": "jquery-yql",
+  "description": "An easy-to-use yql plugin for jquery with templating.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/mabogunje/jquery-yql",
+  "keywords": [
+    "yql",
+    "jquery"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mabogunje/jquery-yql.git"
+  },
+  "contributors": [
+    {
+      "name": "Damola Mabogunje",
+      "email": "damola@mabogunje.net"
+    }
+  ],
+  "main": "src/jquery.yql.js",
+  "scripts": {
+    "test": "java -jar dist/compiler.jar src/jquery.yql.js --js_output_file=dist/jquery.yql.min.js"
+  },
+  "engines": {
+    "node": ">=v0.4.8"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jshint": "^2.9.4",
+    "phantomjs-prebuilt": "^2.1.14",
+    "tape": "^4.6.3"
+  },
+  "license": "MIT"
+}

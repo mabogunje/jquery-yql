@@ -34,7 +34,7 @@
                 console.log(error);
             },
             onData: function() {},
-            onSuccess: function(data) {},
+            onSuccess: function(data) {}
         }, options || {});
 
         this.options.url = [
@@ -84,7 +84,7 @@
         self.params = {
             q: self.query.format(self.options.tables.join(','), self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
-            callback: callback.name,
+            callback: callback.name
         };
 
         if(this.options.sort) {
@@ -105,20 +105,20 @@
                 signature_method: 'HMAC-SHA1',
                 hash_function: function(base_string, key) {
                     return CryptoJS.HmacSHA1(base_string, key).toString(CryptoJS.enc.Base64);
-                }, 
+                } 
             }, {consumer: self.options.oauth} || {});
 
             $.ajax({
                 url: self.request.url,
                 method: self.request.method,
                 data: OAuth(self.options.oauth).authorize(self.request),
-                success: callback,
+                success: callback
             });
         } else {
             $.ajax({ 
                 url: self.request.url, 
                 method: self.request.method,
-                success: callback,
+                success: callback
             });
         }
 
@@ -259,7 +259,7 @@
         return $.extend({
             feed: this.feedTokens,
             index: $.inArray(entry, this.entries),
-            totalEntries: this.entries.length,
+            totalEntries: this.entries.length
         }, this.options.tokens);
     };
 
