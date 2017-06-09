@@ -20,7 +20,7 @@
   ],
   "main": "src/jquery.yql.js",
   "scripts": {
-    "test": "java -jar dist/compiler.jar src/jquery.yql.js --js_output_file=dist/jquery.yql.min.js"
+    "test": "tape test/* && java -jar dist/compiler.jar src/jquery.yql.js --js_output_file=dist/jquery.yql.min.js"
   },
   "engines": {
     "node": ">=v0.4.8"
