@@ -6,7 +6,6 @@
  * @version: 0.1
  */
 
-
 (function($) {
     'use strict';
 
@@ -271,7 +270,8 @@
         if(typeof result !== 'undefined') {
             return ((typeof result === 'function') ? result(entry, tokenMap) : result);
         } else {
-            throw new Error('Unknown token: ' + _token + ', url:' + this.url);
+            var error = new Error('Unknown token: ' + _token + ', url:' + this.options.url);
+            this.options.error.call(self, error);
         }
     };
 
@@ -325,7 +325,7 @@ function flattenObject(o) {
                 }
                 break;
             case '[object Array]':
-                console.log(o[prop]);
+                o[prop] = flattenArray(o[prop]) ;
             default:
                 obj[prop] = o[prop];
                 break;

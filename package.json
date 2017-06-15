@@ -19,6 +19,9 @@
     }
   ],
   "main": "src/jquery.yql.js",
+  "browser": {
+    "jquery.yql": "./src/jquery.yql.js"
+  },
   "scripts": {
     "test": "tape test/* && java -jar dist/compiler.jar src/jquery.yql.js --js_output_file=dist/jquery.yql.min.js"
   },
@@ -27,9 +30,11 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "jshint": "^2.9.4",
+    "browserify": "^14.4.0",
+    "jquery": "^3.2.1",
     "phantomjs-prebuilt": "^2.1.14",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "testling": "^1.7.1"
   },
   "license": "MIT"
 }
