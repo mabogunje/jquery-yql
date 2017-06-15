@@ -131,9 +131,17 @@
                 self.feed = data.query.results
                 self.entries = [];
 
-                for(var item in self.feed) {
-                    self.entries = self.entries.concat(self.feed[item].reduce(flattenArray, []));
+                if($.isEmptyObject(self.feed)) {
+                    var msg = 'No results returned from {0}. Please check your query';
+                    throw new Error(msg.format(self.options.url));
+                } else if(self.feed.hasOwnProperty('error')) {
+                    throw new Error(self.feed.error);
+                } else {
+                    for(var item in self.feed) {
+                        self.entries = self.entries.concat(flattenObject(self.feed[item]));
+                    }
                 }
+                console.log(self.entries[0]);
             } catch (e) {
                 self.payload = null;
                 self.entries = [];
@@ -271,7 +279,7 @@
             return ((typeof result === 'function') ? result(entry, tokenMap) : result);
         } else {
             var error = new Error('Unknown token: ' + _token + ', url:' + this.options.url);
-            this.options.error.call(self, error);
+            this.options.error.call(self, error.message);
         }
     };
 
@@ -325,7 +333,7 @@ function flattenObject(o) {
                 }
                 break;
             case '[object Array]':
-                o[prop] = flattenArray(o[prop]) ;
+                obj[prop] = o[prop].reduce(flattenArray);
             default:
                 obj[prop] = o[prop];
                 break;
@@ -336,11 +344,7 @@ function flattenObject(o) {
 };
 
 function flattenArray(arr, val) {
-    if(Array.isArray(val)) {
-        return arr.concat(flattenArray(val));
-    } else {
-        return arr.concat([flattenObject(val)]);
-    }
+    return Array.isArray(val) ? arr.concat(flattenArray(val)) : val;
 };
 
 /* ----- */
