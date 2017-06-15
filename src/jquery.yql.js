@@ -137,13 +137,11 @@
                 } else if(self.feed.hasOwnProperty('error')) {
                     throw new Error(self.feed.error);
                 } else {
-                    for(var item in self.feed) {
-                        self.entries = self.entries.concat(flattenObject(self.feed[item]));
-                    }
+                    self.entries = self.entries.concat(flattenObject(self.feed));
                 }
-                console.log(self.entries[0]);
+                console.log(JSON.stringify(self.entries, null, 4));
             } catch (e) {
-                self.payload = null;
+                self.feed = null;
                 self.entries = [];
                 return self.options.error.call(self, e.message);
             }
@@ -319,10 +317,9 @@ Object.resolve = function (path, obj) {
 
 function flattenObject(o) {
     return Object.keys(o).reduce(function(obj, prop) {
-        switch (Object.prototype.toString.call(o[prop])) {
-            case '[object Date]':
-                obj[prop] = o[prop].toString();
-                break;
+        var type = Object.prototype.toString.call(o[prop]);
+
+        switch (type) {
             case '[object Object]':
                 if(o[prop]) {
                     var flatObj = flattenObject(o[prop]);
@@ -334,6 +331,10 @@ function flattenObject(o) {
                 break;
             case '[object Array]':
                 obj[prop] = o[prop].reduce(flattenArray);
+                break;
+            case '[object Date]':
+                obj[prop] = o[prop].toString();
+                break;
             default:
                 obj[prop] = o[prop];
                 break;
@@ -343,8 +344,9 @@ function flattenObject(o) {
     }, {});
 };
 
-function flattenArray(arr, val) {
-    return Array.isArray(val) ? arr.concat(flattenArray(val)) : val;
+function flattenArray(acc, val) {
+//    console.log(JSON.stringify(val, null, 4));
+    return Array.isArray(val) ? acc.concat(flattenArray(val)) : flattenObject(val);
 };
 
 /* ----- */
