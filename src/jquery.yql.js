@@ -83,6 +83,7 @@
         self.params = {
             q: self.query.format(self.options.tables.join(','), self.options.input, self.options.url, self.options.limit, self.options.offset),
             format: self.options.output,
+//            crossProduct: "optimized",
             callback: callback.name
         };
 
@@ -139,7 +140,7 @@
                 } else {
                     self.entries = self.entries.concat(flattenObject(self.feed));
                 }
-                console.log(JSON.stringify(self.entries, null, 4));
+//                console.log(JSON.stringify(self.entries, null, 4));
             } catch (e) {
                 self.feed = null;
                 self.entries = [];
@@ -345,7 +346,7 @@ function flattenObject(o) {
 };
 
 function flattenArray(acc, val) {
-//    console.log(JSON.stringify(val, null, 4));
+    console.log(JSON.stringify(val, null, 4));
     return Array.isArray(val) ? acc.concat(flattenArray(val)) : flattenObject(val);
 };
 
