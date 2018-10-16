@@ -275,8 +275,7 @@
     YQL.prototype.getValueForToken = function(_token, entry) {
         var tokenMap = this.getTokenMap(entry);
         var token = _token.replace(/[\{\}]/g, '');
-        var result = (tokenMap.feed[tokenMap.index][token]) ? tokenMap.feed[tokenMap.index][token] : tokenMap[token]; 
-//        console.log(tokenMap.feed[tokenMap.index]);
+        var result = (tokenMap.feed[tokenMap.index][token]) ? tokenMap.feed[tokenMap.index][token] : tokenMap[token](tokenMap.feed[tokenMap.index]); 
 
         if(typeof result !== 'undefined') {
             return ((typeof result === 'function') ? result(entry, tokenMap) : result);
@@ -350,8 +349,6 @@ function flattenObject(o) {
 };
 
 function flattenArray(acc, val, idx) {
-//    console.log(JSON.stringify(val, null, 4));
-//    console.log(acc, idx, val);
     return Array.isArray(val) ? acc.concat(flattenArray(val)) : acc.concat(flattenObject(val));
 };
 
