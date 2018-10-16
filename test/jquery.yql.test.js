@@ -6,7 +6,7 @@ var $ = jQuery,
 var setup = function() {
     var fixture = {
         element: $('<div>').appendTo($('body')),
-        timeout: 10000,
+        timeout: 3000,
         feed: 'http://xml-rss.de/xml/site-atom.xml',
         ajax: $.ajax,
         fakeAjax: function(content) {
@@ -35,6 +35,7 @@ var teardown = function(fixture) {
     if(typeof fixture.ajax === 'function') {
         $.ajax = fixture.ajax;
         fixture.ajax = null;
+        console.log('teardown complete');
     }
 };
 
@@ -46,10 +47,13 @@ test('jquery.yql', function (t) {
             $container = fixture.element,
             expected = /<ul><li>foo<\/li><\/ul>/;
         
-        $container.yql(fixture.feed, '*', {}, function() {
+        $container.yql(fixture.feed, 'title', {}, function() {
             var content = $container.html().replace(/\n/g, '');
+            console.log(content);
             assert.true(expected.test(content));
-            
+            teardown(fixture);
         });
     });
+
+    t.end();
 });

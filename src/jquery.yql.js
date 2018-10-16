@@ -6,6 +6,8 @@
  * @version: 0.1
  */
 
+// require('../libs');
+
 (function($) {
     'use strict';
 
@@ -29,8 +31,9 @@
             effect: 'show',
             tokens: {},
             error: function(err) {
-                var error = err || 'No Data Retrieved';
+                var error = err || new Error('No Data Retrieved');
                 console.log(error);
+                throw(error);
             },
             onData: function() {},
             onSuccess: function(data) {}
@@ -138,7 +141,7 @@
                 } else if(self.feed.hasOwnProperty('error')) {
                     throw new Error(self.feed.error);
                 } else {
-                    self.entries = self.entries.concat(flattenObject(self.feed));
+                    self.entries = self.entries.concat(self.feed[Object.keys(self.feed)[0]]);
                 }
 //                console.log(JSON.stringify(self.entries, null, 4));
             } catch (e) {
@@ -273,6 +276,7 @@
         var tokenMap = this.getTokenMap(entry);
         var token = _token.replace(/[\{\}]/g, '');
         var result = (tokenMap.feed[tokenMap.index][token]) ? tokenMap.feed[tokenMap.index][token] : tokenMap[token]; 
+//        console.log(tokenMap.feed[tokenMap.index]);
 
         if(typeof result !== 'undefined') {
             return ((typeof result === 'function') ? result(entry, tokenMap) : result);
@@ -331,7 +335,7 @@ function flattenObject(o) {
                 }
                 break;
             case '[object Array]':
-                obj[prop] = o[prop].reduce(flattenArray);
+                obj[prop] = o[prop].reduce(flattenArray, []);
                 break;
             case '[object Date]':
                 obj[prop] = o[prop].toString();
@@ -345,9 +349,10 @@ function flattenObject(o) {
     }, {});
 };
 
-function flattenArray(acc, val) {
-    console.log(JSON.stringify(val, null, 4));
-    return Array.isArray(val) ? acc.concat(flattenArray(val)) : flattenObject(val);
+function flattenArray(acc, val, idx) {
+//    console.log(JSON.stringify(val, null, 4));
+//    console.log(acc, idx, val);
+    return Array.isArray(val) ? acc.concat(flattenArray(val)) : acc.concat(flattenObject(val));
 };
 
 /* ----- */
