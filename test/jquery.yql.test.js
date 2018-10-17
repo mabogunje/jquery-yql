@@ -47,14 +47,14 @@ test('jquery.yql', function (t) {
             $container = fixture.element,
             expected = /<ul><li>foo<\/li><\/ul>/;
         
+        alert(fixture, $container, expected);
         $container.yql(fixture.feed, 'title', {}, function() {
             var content = $container.html().replace(/\n/g, '');
             console.log(content);
             assert.true(expected.test(content));
             teardown(fixture);
+            assert.end();
+            t.end();
         });
-        assert.end();
     });
-
-    t.end();
 });
