@@ -53,6 +53,7 @@ test('jquery.yql', function (t) {
             assert.true(expected.test(content));
             teardown(fixture);
         });
+        assert.end();
     });
 
     t.end();
