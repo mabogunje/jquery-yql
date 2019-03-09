@@ -80,11 +80,17 @@
         if($.type(self.options.tables) == 'string') {
             self.options.tables = self.options.tables.split(',');
         } else if (!$.isArray(self.options.tables)) {
-            self.options.tables = '*';
+            self.options.tables = ['*'];
         }
 
         self.params = {
-            q: self.query.format(self.options.tables.join(','), self.options.input, self.options.url, self.options.limit, self.options.offset),
+            q: self.query.format(
+                self.options.tables.join(','),
+                self.options.input,
+                self.options.url,
+                self.options.limit,
+                self.options.offset
+            ),
             format: self.options.output,
 //            crossProduct: "optimized",
             callback: callback.name
@@ -124,7 +130,6 @@
                 success: callback
             });
         }
-
     };
 
     YQL.prototype.render = function() {
@@ -275,7 +280,7 @@
     YQL.prototype.getValueForToken = function(_token, entry) {
         var tokenMap = this.getTokenMap(entry);
         var token = _token.replace(/[\{\}]/g, '');
-        var result = (tokenMap.feed[tokenMap.index][token]) ? tokenMap.feed[tokenMap.index][token] : tokenMap[token](tokenMap.feed[tokenMap.index]); 
+        var result = (tokenMap.feed[tokenMap.index][token]) ? tokenMap.feed[tokenMap.index][token] : tokenMap[token](tokenMap.feed[tokenMap.index]);
 
         if(typeof result !== 'undefined') {
             return ((typeof result === 'function') ? result(entry, tokenMap) : result);
@@ -285,12 +290,12 @@
         }
     };
 
-    $.fn.yql = function(url, select, options, callback) {
+    // Using $.fn was failing for some reason so I used $.prototype directly (they're the same thing)
+    $.prototype.yql = function(url, select, options, callback) { 
         new YQL(this, url, select, options, callback).render();
         return this;
     };
 })(jQuery);
-
 
 /* HELPER METHODS */
 

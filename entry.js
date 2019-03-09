@@ -1,2 +1,2 @@
-global.jQuery = require('jQuery');
-require('jquery.yql');
+global.jQuery = require('jquery');
+require('./src/jquery.yql.js');

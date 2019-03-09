@@ -23,12 +23,14 @@
     "jquery.yql": "./src/jquery.yql.js"
   },
   "scripts": {
-    "test": "browserify test/* | testling | faucet && java -jar dist/compiler.jar src/jquery.yql.js --js_output_file=dist/jquery.yql.min.js"
+    "test": "browserify test/jquery.yql.test.js | testling && java -jar dist/compiler.jar src/jquery.yql.js --js_output_file=dist/jquery.yql.min.js"
   },
   "engines": {
     "node": ">=v0.4.8"
   },
-  "dependencies": {},
+  "dependencies": {
+    "jsdom": "^12.2.0"
+  },
   "devDependencies": {
     "browserify": "^14.5.0",
     "jquery": "^3.3.1",
